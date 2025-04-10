@@ -6,6 +6,7 @@ const {
   DB_PASSWORD,
   DB_DATABASE,
   DB_PORT,
+  JWT_SECRET,
 } = process.env;
 
 module.exports = {
@@ -16,4 +17,5 @@ module.exports = {
   db_password: DB_PASSWORD,
   db_name: DB_DATABASE,
   db_port: DB_PORT,
+  jwt_secret: JWT_SECRET,
 };

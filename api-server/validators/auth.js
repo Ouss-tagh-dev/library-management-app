@@ -15,6 +15,15 @@ const signupValidator = [
   check("role").not().isEmpty().withMessage("Role is required"),
 ];
 
+const signinValidator = [
+  check("email")
+    .isEmail()
+    .withMessage("Email is not valid")
+    .notEmpty()
+    .withMessage("Email is required"),
+  check("password").notEmpty().withMessage("Password is required"),
+];
+
 module.exports = {
-  signupValidator,
+  signupValidator,signinValidator
 };
