@@ -1,14 +1,14 @@
-const express = require("express");
-const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
-
 dotenv.config();
 
-const connectMySql = require("./init/db");
+const express = require("express");
+const bodyParser = require("body-parser");
+
+const { connectDB } = require("./init/db");
+
+connectDB();
 
 const app = express();
-
-// connectMySql();
 
 app.use(express.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
