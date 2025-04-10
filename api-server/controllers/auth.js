@@ -1,20 +1,7 @@
 const { User } = require("../models");
 const signup = async (req, res, next) => {
   try {
-    if (!req.body) {
-      return res.status(400).json({
-        success: false,
-        message: "Request body is required",
-      });
-    }
-
     const { first_name, last_name, email, password, role } = req.body;
-    if (!first_name || !last_name || !email || !password || !role) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
 
     const existingEmail = await User.findOne({ where: { email } });
     if (existingEmail) {
