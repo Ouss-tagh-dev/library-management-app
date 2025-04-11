@@ -14,11 +14,6 @@ const bookValidator = [
   check("publicationDate")
     .isISO8601()
     .withMessage("Publication date must be a valid date"),
-  check("quantity")
-    .notEmpty()
-    .withMessage("Quantity is required")
-    .isInt({ min: 1 })
-    .withMessage("Quantity must be an integer greater than or equal to 1"),
 ];
 
 module.exports = {

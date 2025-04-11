@@ -31,11 +31,6 @@ const Book = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
-    quantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 1,
-    },
     createdBy: {
       type: DataTypes.INTEGER,
       allowNull: false,

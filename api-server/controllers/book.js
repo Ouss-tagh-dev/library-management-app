@@ -2,8 +2,7 @@ const { Book, User } = require("../models");
 
 const createBook = async (req, res) => {
   try {
-    const { title, author, description, isbn, publicationDate, quantity } =
-      req.body;
+    const { title, author, description, isbn, publicationDate } = req.body;
     const userId = parseInt(req.user.id);
 
     const existingBook = await Book.findOne({ where: { isbn } });
@@ -34,7 +33,6 @@ const createBook = async (req, res) => {
       description,
       isbn,
       publicationDate,
-      quantity,
       createdBy: userId,
       updatedBy: userId,
     });
@@ -99,8 +97,7 @@ const getBookById = async (req, res) => {
 const updateBook = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, author, description, isbn, publicationDate, quantity } =
-      req.body;
+    const { title, author, description, isbn, publicationDate } = req.body;
     const book = await Book.findByPk(id);
     const userId = parseInt(req.user.id);
 
@@ -129,7 +126,6 @@ const updateBook = async (req, res) => {
     book.description = description;
     book.isbn = isbn;
     book.publicationDate = publicationDate;
-    book.quantity = quantity;
     book.updatedBy = userId;
 
     await book.save();
