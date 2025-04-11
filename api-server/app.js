@@ -4,7 +4,7 @@ dotenv.config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const { connectDB } = require("./init/db");
-const { authRoute } = require("./routes");
+const { authRoute, bookRoute } = require("./routes");
 const { errorHandler } = require("./middlewares");
 
 // Init app
@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 // Routes
 app.use("/api/v1/auth", authRoute);
+app.use("/api/v1/book", bookRoute);
 
 // not found route
 app.use((req, res, next) => {
