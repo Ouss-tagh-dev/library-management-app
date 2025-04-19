@@ -43,13 +43,18 @@ const signin = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      res.status = 401;
-      throw new Error("Invalid email or password");
+      res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
     }
     const isMatch = await comparePassword(password, user.password);
+
     if (!isMatch) {
-      res.status = 401;
-      throw new Error("Invalid email or password");
+      res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
     }
 
     const token = generateToken(user);
