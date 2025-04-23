@@ -16,6 +16,7 @@ import BookDetailsScreen from "../screens/BookDetailsScreen";
 import NewBookScreen from "../screens/NewBookScreen";
 import AdminHomeScreen from "../screens/AdminHomeScreen";
 import EditBookScreen from "../screens/EditBookScreen";
+import LoansBooksList from "../screens/LoansBooksList";
 
 // Types
 type RootTabParamList = {
@@ -29,6 +30,7 @@ type HomeStackParamList = {
   Home: undefined;
   BookDetails: { bookId: number };
   EditBook: { bookId: number };
+  LoansBooks: undefined;
 };
 
 type User = {
@@ -53,6 +55,7 @@ const HomeStackNavigator: React.FC<{ userRole: User["role"] }> = ({
     />
     <HomeStack.Screen name="BookDetails" component={BookDetailsScreen} />
     <HomeStack.Screen name="EditBook" component={EditBookScreen} />
+    <HomeStack.Screen name="LoansBooks" component={LoansBooksList} />
   </HomeStack.Navigator>
 );
 

@@ -8,4 +8,5 @@ export const ApiRoutes = {
   book: (id: number) => `${BASE_URL}/book/${id}`,
   loan: () => `${BASE_URL}/loan`,
   deleteLoan: (id: number) => `${BASE_URL}/loan/${id}`,
+  loans: () => `${BASE_URL}/loan/loans`,
 };

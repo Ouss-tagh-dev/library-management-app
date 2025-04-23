@@ -193,6 +193,13 @@ const AdminHomeScreen: React.FC = () => {
         subtitle="Découvrez notre bibliothèque"
       />
 
+      <TouchableOpacity
+        style={styles.loansButton}
+        onPress={() => navigation.navigate("LoansBooks")}
+      >
+        <Text style={styles.loansButtonText}>Voir les livres empruntés</Text>
+      </TouchableOpacity>
+
       <View style={styles.searchContainer}>
         <Icon
           name="search"
@@ -255,6 +262,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#F7FAFC",
+  },
+  loansButton: {
+    backgroundColor: "#4299E1",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  loansButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
   searchContainer: {
     flexDirection: "row",

@@ -1,5 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const { sequelize } = require("../init/db");
+const User = require("./User");
+const Book = require("./Book");
 
 const Loan = sequelize.define(
   "Loan",
@@ -39,5 +41,8 @@ const Loan = sequelize.define(
     timestamps: true,
   }
 );
+
+Loan.belongsTo(User, { foreignKey: "user_id" });
+Loan.belongsTo(Book, { foreignKey: "book_id" });
 
 module.exports = Loan;

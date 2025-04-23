@@ -1,34 +1,38 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { Book } from "../types/book"; // Assurez-vous que le type Book est bien défini
+import { Book } from "../types/book";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { dateFormatter } from "../utils/dateFormatter";
 
+interface LoanInfo {
+  loanDate: string;
+  returnDate: string;
+}
+
 interface AdminBookCardProps {
   book: Book;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  isBorrowed?: boolean;
+  loanInfo?: LoanInfo;
+  borrowedBy?: string;
 }
 
 const AdminBookCard: React.FC<AdminBookCardProps> = ({
   book,
   onEdit,
   onDelete,
+  isBorrowed = false,
+  loanInfo,
+  borrowedBy,
 }) => {
   const handleDelete = () => {
     Alert.alert(
       "Confirmation",
       "Êtes-vous sûr de vouloir supprimer ce livre ?",
       [
-        {
-          text: "Annuler",
-          style: "cancel",
-        },
-        {
-          text: "Supprimer",
-          onPress: onDelete,
-          style: "destructive",
-        },
+        { text: "Annuler", style: "cancel" },
+        { text: "Supprimer", onPress: onDelete, style: "destructive" },
       ]
     );
   };
@@ -49,29 +53,45 @@ const AdminBookCard: React.FC<AdminBookCardProps> = ({
       )}
 
       <View style={styles.footer}>
-        <Text style={styles.isbn}> ISBN : {book.isbn}</Text>
+        <Text style={styles.isbn}>ISBN : {book.isbn}</Text>
         <Text style={styles.date}>
-          {" "}
           Publié : {dateFormatter(book.publicationDate || "")}
         </Text>
       </View>
 
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={[styles.button, styles.editButton]}
-          onPress={onEdit}
-        >
-          <Icon name="edit" size={18} color="white" />
-          <Text style={styles.buttonText}>Modifier</Text>
-        </TouchableOpacity>
+      {isBorrowed && (
+        <View style={styles.loanInfo}>
+          <Text style={styles.borrowedBy}>
+            Emprunté par : <Text style={styles.bold}>{borrowedBy}</Text>
+          </Text>
+          <Text style={styles.returnDate}>
+            Retour prévu :{" "}
+            <Text style={styles.bold}>
+              {dateFormatter(loanInfo?.returnDate || "")}
+            </Text>
+          </Text>
+        </View>
+      )}
 
-        <TouchableOpacity
-          style={[styles.button, styles.deleteButton]}
-          onPress={handleDelete}
-        >
-          <Icon name="delete" size={18} color="white" />
-          <Text style={styles.buttonText}>Supprimer</Text>
-        </TouchableOpacity>
+      <View style={styles.actions}>
+        {onEdit && (
+          <TouchableOpacity
+            style={[styles.button, styles.editButton]}
+            onPress={onEdit}
+          >
+            <Icon name="edit" size={18} color="white" />
+            <Text style={styles.buttonText}>Modifier</Text>
+          </TouchableOpacity>
+        )}
+        {onDelete && (
+          <TouchableOpacity
+            style={[styles.button, styles.deleteButton]}
+            onPress={handleDelete}
+          >
+            <Icon name="delete" size={18} color="white" />
+            <Text style={styles.buttonText}>Supprimer</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -122,6 +142,21 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 12,
     color: "#718096",
+  },
+  loanInfo: {
+    marginBottom: 12,
+  },
+  borrowedBy: {
+    fontSize: 14,
+    color: "#2D3748",
+    marginBottom: 4,
+  },
+  returnDate: {
+    fontSize: 14,
+    color: "#2D3748",
+  },
+  bold: {
+    fontWeight: "bold",
   },
   actions: {
     flexDirection: "row",

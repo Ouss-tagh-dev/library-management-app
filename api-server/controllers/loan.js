@@ -91,8 +91,46 @@ const deleteUserLoan = async (req, res) => {
   }
 };
 
+const getAllLoans = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Only administrators can retrieve all loans.",
+      });
+    }
+
+    const loans = await Loan.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["first_name", "last_name", "email", "role"],
+        },
+        {
+          model: Book,
+          attributes: ["id", "title", "author", "publicationDate"],
+        },
+      ],
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Loans retrieved successfully",
+      loans: loans,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving loans",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createLoan,
   getUserLoans,
   deleteUserLoan,
+  getAllLoans,
 };
