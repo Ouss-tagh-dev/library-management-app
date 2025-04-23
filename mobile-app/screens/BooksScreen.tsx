@@ -15,8 +15,12 @@ import Header from "../components/Header";
 import BookCard from "../components/BookCard";
 import { Loan } from "../types/book";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useNavigation } from "@react-navigation/native";
+import { HomeStackParamList } from "../types/navigation";
 
 const BooksScreen: React.FC = () => {
+  const navigation = useNavigation<HomeStackParamList>();
+
   const [userName, setUserName] = useState<string>("");
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -29,6 +33,14 @@ const BooksScreen: React.FC = () => {
     };
     initialize();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchBorrowedBooks();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const getUserInfo = async () => {
     try {
@@ -50,7 +62,6 @@ const BooksScreen: React.FC = () => {
 
       if (!token) throw new Error("Authentification requise");
 
-      // Récupération des prêts
       const loansResponse = await axios.get(ApiRoutes.loan(), {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -66,7 +77,6 @@ const BooksScreen: React.FC = () => {
         throw new Error("Format de données de prêt invalide");
       }
 
-      // Récupération des IDs des livres
       const bookIds = [...new Set(loansData.map((loan: Loan) => loan.book_id))];
 
       if (bookIds.length === 0) {
@@ -74,7 +84,6 @@ const BooksScreen: React.FC = () => {
         return;
       }
 
-      // Récupération des livres avec GET et query params
       const booksResponse = await axios.get(ApiRoutes.books(), {
         headers: { Authorization: `Bearer ${token}` },
         params: { ids: bookIds.join(",") },
@@ -86,7 +95,6 @@ const BooksScreen: React.FC = () => {
         throw new Error("Réponse API invalide pour les livres");
       }
 
-      // Création d'une map des livres
       const booksMap = booksResponse.data.books.reduce(
         (acc: any, book: any) => {
           if (book?.id && book?.title) {

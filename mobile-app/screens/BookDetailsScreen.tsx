@@ -212,7 +212,7 @@ const BookDetailsScreen: React.FC<Props> = ({ route }) => {
         onPress={isBorrowed ? handleReturn : handleBorrow}
       >
         <Icon
-          name={isBorrowed ? "check-circle" : "bookmark-add"}
+          name={isBorrowed ? "undo" : "bookmark-add"}
           size={20}
           color="white"
         />
@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     color: "#4A5568",
+    textAlign: "justify",
   },
   infoContainer: {
     backgroundColor: "#F7FAFC",

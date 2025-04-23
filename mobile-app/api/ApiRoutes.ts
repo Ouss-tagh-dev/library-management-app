@@ -1,4 +1,4 @@
-const BASE_URL = "http://192.168.224.33:8000/api/v1";
+const BASE_URL = "http://192.168.71.33:8000/api/v1";
 
 export const ApiRoutes = {
   login: () => `${BASE_URL}/auth/signin`,

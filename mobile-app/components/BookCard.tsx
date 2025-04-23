@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Book } from "../types/book";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { dateFormatter } from "../utils/dateFormatter";
 
 interface BookCardProps {
   book: Book;
@@ -25,22 +26,12 @@ const BookCard: React.FC<BookCardProps> = ({
   isBorrowed = false,
   showBorrowButton = true,
 }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("fr-FR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   const isOverdue = loanInfo && new Date(loanInfo.returnDate) < new Date();
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.content}>
         <View style={styles.header}>
-          
           <View style={styles.titleContainer}>
             <Text style={styles.title} numberOfLines={2}>
               {book.title}
@@ -63,7 +54,7 @@ const BookCard: React.FC<BookCardProps> = ({
               <Icon name="event-available" size={16} color="#4A5568" />
               <Text style={styles.loanInfoLabel}>Emprunté le : </Text>
               <Text style={styles.loanInfoValue}>
-                {formatDate(loanInfo.loanDate)}
+                {dateFormatter(loanInfo.loanDate)}
               </Text>
             </View>
             <View style={styles.loanInfoItem}>
@@ -76,17 +67,17 @@ const BookCard: React.FC<BookCardProps> = ({
                 Retour avant le :
               </Text>
               <Text style={[styles.loanInfoValue, isOverdue && styles.overdue]}>
-                {formatDate(loanInfo.returnDate)}
+                {dateFormatter(loanInfo.returnDate)}
               </Text>
             </View>
           </View>
         )}
 
         <View style={styles.footer}>
-          <Text style={styles.isbn}>📖 ISBN : {book.isbn}</Text>
+          <Text style={styles.isbn}>ISBN : {book.isbn}</Text>
           {book.publicationDate && (
             <Text style={styles.date}>
-              🗓 Publié : {formatDate(book.publicationDate)}
+              Publié : {dateFormatter(book.publicationDate)}
             </Text>
           )}
         </View>

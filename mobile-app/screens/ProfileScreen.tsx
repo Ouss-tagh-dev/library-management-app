@@ -5,10 +5,12 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { User } from "../types/user";
+import Header from "../components/Header";
 
 const ProfileScreen: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -68,59 +70,56 @@ const ProfileScreen: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Profil Utilisateur</Text>
-        <Icon name="person" size={28} color="#2D3748" />
-      </View>
+      <Header title="Profil" subtitle="Informations personnelles" />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.profileCard}>
+          <View style={styles.infoRow}>
+            <Icon name="badge" size={24} color="#4299E1" />
+            <View style={styles.textContainer}>
+              <Text style={styles.label}>Nom complet</Text>
+              <Text
+                style={styles.value}
+              >{`${user.first_name} ${user.last_name}`}</Text>
+            </View>
+          </View>
 
-      <View style={styles.profileCard}>
-        <View style={styles.infoRow}>
-          <Icon name="badge" size={24} color="#4299E1" />
-          <View style={styles.textContainer}>
-            <Text style={styles.label}>Nom complet</Text>
-            <Text
-              style={styles.value}
-            >{`${user.first_name} ${user.last_name}`}</Text>
+          <View style={styles.separator} />
+
+          <View style={styles.infoRow}>
+            <Icon name="email" size={24} color="#4299E1" />
+            <View style={styles.textContainer}>
+              <Text style={styles.label}>Adresse email</Text>
+              <Text style={styles.value}>{user.email}</Text>
+            </View>
+          </View>
+
+          <View style={styles.separator} />
+
+          <View style={styles.infoRow}>
+            <Icon name="security" size={24} color="#4299E1" />
+            <View style={styles.textContainer}>
+              <Text style={styles.label}>Rôle</Text>
+              <Text style={[styles.value, styles.role]}>
+                {user.role.toUpperCase()}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.separator} />
+
+          <View style={styles.infoRow}>
+            <Icon name="calendar-today" size={24} color="#4299E1" />
+            <View style={styles.textContainer}>
+              <Text style={styles.label}>Compte créé le</Text>
+              <Text style={styles.value}>{formatDate(user.createdAt)}</Text>
+            </View>
           </View>
         </View>
-
-        <View style={styles.separator} />
-
-        <View style={styles.infoRow}>
-          <Icon name="email" size={24} color="#4299E1" />
-          <View style={styles.textContainer}>
-            <Text style={styles.label}>Adresse email</Text>
-            <Text style={styles.value}>{user.email}</Text>
-          </View>
-        </View>
-
-        <View style={styles.separator} />
-
-        <View style={styles.infoRow}>
-          <Icon name="security" size={24} color="#4299E1" />
-          <View style={styles.textContainer}>
-            <Text style={styles.label}>Rôle</Text>
-            <Text style={[styles.value, styles.role]}>
-              {user.role.toUpperCase()}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.separator} />
-
-        <View style={styles.infoRow}>
-          <Icon name="calendar-today" size={24} color="#4299E1" />
-          <View style={styles.textContainer}>
-            <Text style={styles.label}>Compte créé le</Text>
-            <Text style={styles.value}>{formatDate(user.createdAt)}</Text>
-          </View>
-        </View>
-      </View>
-
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Icon name="logout" size={24} color="white" />
-        <Text style={styles.logoutText}>Déconnexion</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Icon name="logout" size={24} color="white" />
+          <Text style={styles.logoutText}>Déconnexion</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
@@ -131,21 +130,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7FAFC",
     padding: 20,
   },
+  scrollContent: {
+    paddingBottom: 20,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: "#2D3748",
   },
   profileCard: {
     backgroundColor: "white",

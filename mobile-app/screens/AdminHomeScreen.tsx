@@ -14,11 +14,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { ApiRoutes } from "../api/ApiRoutes";
 import Header from "../components/Header";
-import BookCard from "../components/BookCard";
+import AdminBookCard from "../components/AdminBookCard";
 import { Book } from "../types/book";
 import Icon from "react-native-vector-icons/Feather";
 import { HomeStackParamList } from "../types/navigation";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { dateFormatter } from "../utils/dateFormatter";
 
 type Loan = {
   bookId: number;
@@ -27,8 +28,9 @@ type Loan = {
   returnDate: string;
 };
 
-const HomeScreen: React.FC = () => {
+const AdminHomeScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
+
   const [userName, setUserName] = useState("");
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,6 @@ const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     const initialize = async () => {
-      console.log("Initialisation du composant HomeScreen");
       try {
         await getUserInfo();
         await fetchBooks();
@@ -50,19 +51,18 @@ const HomeScreen: React.FC = () => {
     initialize();
   }, []);
 
-   useEffect(() => {
-      const unsubscribe = navigation.addListener("focus", () => {
-        fetchBooks();
-        fetchBorrowedBooks();
-      });
-  
-      return unsubscribe;
-    }, [navigation]);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      fetchBooks();
+      fetchBorrowedBooks();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const getUserInfo = async () => {
     try {
       const userString = await AsyncStorage.getItem("user");
-      console.log("Données utilisateur brutes:", userString);
       if (userString) {
         const user = JSON.parse(userString);
         setUserName(user.first_name || user.email || "Utilisateur");
@@ -76,24 +76,17 @@ const HomeScreen: React.FC = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem("authToken");
-      console.log(
-        "Token utilisé pour fetchBooks:",
-        token?.slice(0, 10) + "..."
-      );
-
       if (!token) throw new Error("Token non trouvé");
 
       const response = await axios.get(ApiRoutes.books(), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Réponse de l'API livres:", response.data);
-
       if (response.data?.success) {
         setBooks(response.data.books);
         setError("");
       } else {
-        throw new Error("Aucun livre trouvé dans la réponse");
+        throw new Error("Aucun livre trouvé");
       }
     } catch (err) {
       console.error("Erreur fetchBooks:", err);
@@ -108,12 +101,9 @@ const HomeScreen: React.FC = () => {
       const token = await AsyncStorage.getItem("authToken");
       if (!token) return;
 
-      console.log("Fetching borrowed books...");
       const response = await axios.get(ApiRoutes.loan(), {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      console.log("Réponse des prêts:", response.data);
 
       if (response.data?.success) {
         const loansData = response.data.loans.map((loan: any) => ({
@@ -129,89 +119,44 @@ const HomeScreen: React.FC = () => {
     }
   };
 
-  const handleBorrowBook = async (bookId: number) => {
-    try {
-      console.log("Tentative d'emprunt pour bookId:", bookId);
-      const token = await AsyncStorage.getItem("authToken");
-      if (!token) throw new Error("Authentification requise");
-
-      const loanDate = new Date();
-      const returnDate = new Date(loanDate);
-      returnDate.setDate(loanDate.getDate() + 10);
-
-      const payload = {
-        bookId: bookId,
-        loanDate: loanDate.toISOString().split("T")[0],
-        returnDate: returnDate.toISOString().split("T")[0],
-      };
-
-      console.log("Payload emprunt:", payload);
-
-      const response = await axios.post(ApiRoutes.loan(), payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log("Réponse emprunt:", response.data);
-
-      if (response.data.success) {
-        const newLoan = {
-          bookId,
-          loanId: response.data.loan.id,
-          loanDate: response.data.loan.loan_date,
-          returnDate: response.data.loan.return_date,
-        };
-        setLoans([...loans, newLoan]);
-        Alert.alert(
-          "Succès",
-          `Emprunt réussi jusqu'au ${formatDate(
-            response.data.loan.return_date
-          )}`
-        );
-      }
-    } catch (error) {
-      console.error("Erreur handleBorrowBook:", error);
-      let errorMessage = "Erreur inconnue";
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || error.message;
-      }
-      Alert.alert("Erreur", errorMessage);
-    }
-  };
-
   const handleReturnBook = async (loanId: number) => {
     try {
-      console.log("Tentative de retour pour loanId:", loanId);
       const token = await AsyncStorage.getItem("authToken");
       if (!token) throw new Error("Authentification requise");
 
-      console.log("Suppression du prêt ID:", loanId);
       await axios.delete(ApiRoutes.deleteLoan(loanId), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setLoans(loans.filter((loan) => loan.loanId !== loanId));
       Alert.alert("Succès", "Livre rendu avec succès");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur handleReturnBook:", error);
-      let errorMessage = "Échec de la restitution";
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || error.message;
-      }
-      Alert.alert("Erreur", errorMessage);
+      Alert.alert("Erreur", error.message || "Échec de la restitution");
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const handleEditBook = (bookId: number) => {
+    navigation.navigate("EditBook", { bookId });
+  };
+
+  const handleDeleteBook = async (bookId: number) => {
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("fr-FR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) throw new Error("Authentification requise");
+
+      const response = await axios.delete(ApiRoutes.book(bookId), {
+        headers: { Authorization: `Bearer ${token}` },
       });
-    } catch (error) {
-      console.error("Erreur formatDate:", error);
-      return "Date invalide";
+
+      if (response.data.success) {
+        await Promise.all([fetchBooks(), fetchBorrowedBooks()]);
+        Alert.alert("Succès", "Livre supprimé avec succès");
+      }
+    } catch (error: any) {
+      console.error("Erreur handleDeleteBook:", error);
+      const message = error.response?.data?.message || "Erreur de suppression";
+      Alert.alert("Erreur", message);
     }
   };
 
@@ -223,13 +168,10 @@ const HomeScreen: React.FC = () => {
 
   const renderBookItem = ({ item }: { item: Book }) => {
     const loan = loans.find((l) => l.bookId === item.id);
-    console.log(`Rendu livre ${item.id} - emprunté: ${!!loan}`);
-
     return (
-      <BookCard
+      <AdminBookCard
         book={item}
         onPress={() => navigation.navigate("BookDetails", { bookId: item.id })}
-        onBorrow={() => handleBorrowBook(item.id)}
         onReturn={() => loan && handleReturnBook(loan.loanId)}
         loanInfo={
           loan
@@ -238,6 +180,8 @@ const HomeScreen: React.FC = () => {
         }
         isBorrowed={!!loan}
         showBorrowButton={!loan}
+        onEdit={() => handleEditBook(item.id)}
+        onDelete={() => handleDeleteBook(item.id)}
       />
     );
   };
@@ -372,18 +316,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
-    gap: 10,
-    marginTop: 100,
+    gap: 20,
   },
   emptyText: {
-    color: "#718096",
     fontSize: 16,
-    textAlign: "center",
+    color: "#718096",
   },
   booksList: {
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
 });
 
-export default HomeScreen;
+export default AdminHomeScreen;

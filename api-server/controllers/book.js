@@ -1,4 +1,4 @@
-const { Book, User } = require("../models");
+const { Book, User, Loan } = require("../models");
 
 const createBook = async (req, res) => {
   try {
@@ -148,39 +148,29 @@ const deleteBook = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = parseInt(req.user.id);
-    const book = await Book.findByPk(id);
 
-    if (!book) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Book not found" });
-    }
+    const existingLoans = await Loan.findAll({ where: { book_id: id } });
 
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
-
-    if (user.role !== "admin") {
-      return res.status(403).json({
+    if (existingLoans.length > 0) {
+      return res.status(400).json({
         success: false,
-        message: "You are not authorized to create a book",
+        message: "Impossible de supprimer : livre emprunté",
       });
     }
 
-    await book.destroy();
-    res.status(200).json({
-      success: true,
-      message: "Book deleted successfully",
+    await Book.destroy({
+      where: { id },
+      include: [{ model: Loan, as: "loans" }],
     });
+
+    res.status(200).json({ success: true, message: "Livre supprimé" });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Error deleting book",
-      error: error.message,
+      message: error.message.includes("foreign key")
+        ? "Suppression impossible : livre lié à des prêts"
+        : "Erreur serveur",
     });
   }
 };
