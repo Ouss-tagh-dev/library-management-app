@@ -13,10 +13,10 @@ import axios from "axios";
 import { ApiRoutes } from "../api/ApiRoutes";
 import Header from "../components/Header";
 import BookCard from "../components/BookCard";
-import { Loan } from "../types/book";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { HomeStackParamList } from "../types/navigation";
+import { Loan } from "../types/book";
 
 const BooksScreen: React.FC = () => {
   const navigation = useNavigation<HomeStackParamList>();
@@ -171,20 +171,6 @@ const BooksScreen: React.FC = () => {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("fr-FR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-    } catch (error) {
-      console.error("Format de date invalide:", dateString);
-      return "Date inconnue";
-    }
-  };
-
   const renderBookItem = ({ item }: { item: Loan }) => {
     if (!item.book) return null;
 
@@ -193,8 +179,8 @@ const BooksScreen: React.FC = () => {
         book={item.book}
         isBorrowed={true}
         loanInfo={{
-          loanDate: formatDate(item.loan_date),
-          returnDate: formatDate(item.return_date),
+          loanDate: item.loan_date,
+          returnDate: item.return_date,
         }}
         onReturn={() => handleReturnBook(item.id)}
         showBorrowButton={false}
